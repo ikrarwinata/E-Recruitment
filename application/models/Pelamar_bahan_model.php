@@ -1,0 +1,164 @@
+<?php
+
+if (!defined('BASEPATH'))
+    exit('No direct script access allowed');
+
+class Pelamar_bahan_model extends CI_Model
+{
+
+    public $table = 'pelamar_bahan';
+    public $id = 'id';
+    public $order = 'DESC';
+
+    function __construct()
+    {
+        parent::__construct();
+    }
+
+    // get all
+    function get_all()
+    {
+        $this->db->order_by($this->id, $this->order);
+        return $this->db->get($this->table)->result();
+    }
+
+    // get a row by id
+    function get_by_id($id)
+    {
+        $this->db->where($this->id, $id);
+        return $this->db->get($this->table)->row();
+    }
+
+    // get a row by defined field
+    function get_by($fieldkey, $val)
+    {
+        $this->db->where($fieldkey, $val);
+        return $this->db->get($this->table)->row();
+    }
+
+    // get a row by defined field
+    function get_berkas($p)
+    {
+        $this->db->where("id", $p);
+        $pekerjaan = $this->db->get("pekerjaan")->row();
+
+        $this->db->where("kode_bahan", $pekerjaan->kode_bahan);
+        return $this->db->get("berkas_pekerjaan")->result();
+    }
+
+    // get a row by defined field
+    function get_berkas_uploaded($p, $val)
+    {
+        $this->db->where("id", $p);
+        $pekerjaan = $this->db->get("pekerjaan")->row();
+
+        $this->db->where("kode_bahan", $pekerjaan->kode_bahan);
+        $this->db->where("nik", $val);
+        return $this->db->get("berkas_pelamar_view")->result();
+    }
+
+    // get a row by defined field
+    function get_pelamar_berkas($nik, $id)
+    {
+        $this->db->where("nik", $nik);
+        $this->db->where("id_berkas", $id);
+        return $this->db->get($this->table)->row();
+    }
+
+    // get data by defined field
+    function get_data_by($fieldkey, $val)
+    {
+        $this->db->where($fieldkey, $val);
+        return $this->db->get($this->table)->result();
+    }
+    
+    // get total rows
+    function total_rows($q = NULL) {
+        if($q!=NULL){
+            $this->db->group_start();
+            $this->db->like('id', $q);
+            $this->db->or_like('nama', $q);
+            $this->db->or_like('nik', $q);
+            $this->db->or_like('id_berkas', $q);
+            $this->db->or_like('file_path', $q);
+            $this->db->group_end();
+        }
+        $this->db->from($this->table);
+        return $this->db->count_all_results();
+    }
+    
+    // get total rows
+    function total_rows_pelamar($nik, $id_posisi) {
+        return $this->db->query("SELECT COUNT(*) AS total FROM pelamar_bahan_overview WHERE pelamar_bahan_overview.nik = '".$nik."' AND pelamar_bahan_overview.id_berkas IN (SELECT a.id FROM berkas_pekerjaan a WHERE a.kode_bahan = (SELECT pekerjaan.kode_bahan FROM pekerjaan WHERE pekerjaan.id = '".$id_posisi."' LIMIT 1 OFFSET 0))")->row()->total;
+    }
+
+    // get data with limit and search
+    function get_limit_data($limit, $start = 0, $q = NULL) {
+        if($q!=NULL){
+            $this->db->group_start();
+            $this->db->like('id', $q);
+            $this->db->or_like('nik', $q);
+            $this->db->or_like('nama', $q);
+            $this->db->or_like('id_berkas', $q);
+            $this->db->or_like('file_path', $q);
+            $this->db->group_end();
+        }
+        $this->db->order_by("nik", $this->order);
+        $this->db->limit($limit, $start);
+        return $this->db->get("pelamar_bahan_overview")->result();
+    }
+
+    // get data with limit and search
+    function get_data_pelamar($nik, $id_posisi) {
+        return $this->db->query("SELECT * FROM pelamar_bahan_overview WHERE pelamar_bahan_overview.nik = '".$nik."' AND pelamar_bahan_overview.id_berkas IN (SELECT a.id FROM berkas_pekerjaan a WHERE a.kode_bahan = (SELECT pekerjaan.kode_bahan FROM pekerjaan WHERE pekerjaan.id = '".$id_posisi."' LIMIT 1 OFFSET 0))")->result();
+    }
+
+    // insert data
+    function insert($data)
+    {
+        $this->db->insert($this->table, $data);
+    }
+
+    // update data
+    function update($id, $data)
+    {
+        $this->db->where($this->id, $id);
+        $this->db->update($this->table, $data);
+    }
+
+    // update data by spesific field
+    function update_by($field, $val, $data)
+    {
+        $this->db->where($field, $val);
+        $this->db->update($this->table, $data);
+    }
+
+    // delete data
+    function delete($id)
+    {
+        $this->db->where($this->id, $id);
+        $this->db->delete($this->table);
+    }
+
+    // delete data by spesific field
+    function delete_by($field, $val)
+    {
+        $this->db->where($field, $val);
+        $this->db->delete($this->table);
+    }
+
+    // delete data by spesific field
+    function delete_pelamar_berkas($nik, $id)
+    {
+        $this->db->where("nik", $nik);
+        $this->db->where("id_berkas", $id);
+        $this->db->delete($this->table);
+    }
+
+}
+
+/* End of file Pelamar_bahan_model.php */
+/* Location: ./application/models/Pelamar_bahan_model.php */
+/* Please DO NOT modify this information : */
+/* Generated by Harviacode Codeigniter CRUD Generator 2021-02-14 06:43:01 */
+/* http://harviacode.com */
