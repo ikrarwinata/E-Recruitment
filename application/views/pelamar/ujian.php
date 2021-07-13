@@ -322,20 +322,20 @@ scratch. This page gets rid of all links and provides the needed markup only.
       })
 
       var warn = false;
-      // $(window).blur(function() {
-      //   if (!warn) {
-      //     warn = !warn;
-      //     alert("Dilarang menggunakan alat bantu (Mesin pencari Google, Yahoo, Bing, Dll) ataupun bertanya pada orang lain.");
-      //   }
-      //   ForceClose(false);
-      // });
-      // $(window).focus(function() {
-      //   if (!warn) {
-      //     warn = !warn;
-      //     alert("Dilarang menggunakan alat bantu (Mesin pencari Google, Yahoo, Bing, Dll) ataupun bertanya pada orang lain.");
-      //   }
-      //   ForceClose(false);
-      // });
+      $(window).blur(function() {
+        if (!warn) {
+          warn = !warn;
+          alert("Dilarang menggunakan alat bantu (Mesin pencari Google, Yahoo, Bing, Dll) ataupun bertanya pada orang lain.");
+        }
+        ForceClose(false);
+      });
+      $(window).focus(function() {
+        if (!warn) {
+          warn = !warn;
+          alert("Dilarang menggunakan alat bantu (Mesin pencari Google, Yahoo, Bing, Dll) ataupun bertanya pada orang lain.");
+        }
+        ForceClose(false);
+      });
     })
   </script>
 </body>
