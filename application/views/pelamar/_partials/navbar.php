@@ -49,7 +49,7 @@
                 <span class="dropdown-header"><?php echo count($ujian_dimulai)+count($ujian_akan_dimulai) ?> Pemberitahuan</span>
                 <div class="dropdown-divider"></div>
                 <?php foreach ($ujian_dimulai as $key => $value): ?>
-                <a href="pelamar/Ujian/s/<?php echo $value->id ?>" class="dropdown-item">
+                <a href="pelamar/Ujian/prep/<?php echo $value->id ?>" class="dropdown-item">
                   <i class="fas fa-clock mr-2"></i> Tes <strong><?php echo $value->judul ?></strong> sedang berlangsung
                   <span class="float-right text-muted text-sm"><small>Saat ini</small></span>
                 </a>
