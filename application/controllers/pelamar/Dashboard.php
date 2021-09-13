@@ -58,8 +58,18 @@ class Dashboard extends CI_Controller {
         $pk = $this->Pekerjaan_model->get_pelamar_by("id", $this->session->userdata("id_posisi"));
         $bp = $this->Pelamar_bahan_model->get_by("nik", $this->session->userdata("nik"));
         $bk=array();
-        if (count($pk)) {
+        if ($pk) {
         	$bk = $this->Berkas_pekerjaan_model->get_by("kode_bahan", $pk->kode_bahan);
+        }
+        if ($bp == NULL) {
+            $bp = 0;
+        }else{
+            $bp = count((array)$bp);
+        }
+        if ($bk == NULL) {
+            $bk = 0;
+        }else {
+            $bk = count((array)$bk);
         }
         $data = array(
         	'pekerjaan'=>$pk,

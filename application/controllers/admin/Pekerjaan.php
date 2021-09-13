@@ -152,8 +152,9 @@ class Pekerjaan extends CI_Controller
             $pendaftaran_akhir = strtotime(str_replace("/", '-', explode(" - ", $this->input->post('pendaftaran_tanggal',TRUE))[1]));
             $arrBerkas = $this->input->post('nama_berkas',TRUE);
             $arrBerkasType = $this->input->post('tipe_berkas',TRUE);
-            $arrUjian = $this->input->post('judul_ujian',TRUE);
+            $arrUjian = $this->input->post('judul_ujian', TRUE);
             $arrJadwalUjian = $this->input->post('jadwal_ujian',TRUE);
+            $arrNilaiUjian = $this->input->post('nilai_ujian', TRUE);
 
             for($i=0;$i<count($arrUjian);$i++){
                 $kode_soal = trim(substr($arrUjian[$i], 0, 4)).strtotime("now");
@@ -163,7 +164,8 @@ class Pekerjaan extends CI_Controller
                     'kode_soal'=>$kode_soal,
                     'judul'=>$arrUjian[$i],
                     'mulai'=>strtotime(str_replace("/", '-', $temp[0]).":00"),
-                    'akhir'=>strtotime(str_replace("/", '-', $temp[1]).":00")
+                    'akhir'=>strtotime(str_replace("/", '-', $temp[1]).":00"),
+                    'standar_nilai'=> $arrNilaiUjian[$i]
                 );
                 $this->Jadwal_ujian_model->insert($data_ujian);
             };
@@ -236,66 +238,50 @@ class Pekerjaan extends CI_Controller
         if ($this->form_validation->run() == FALSE) {
             $this->update($this->input->post('id', TRUE));
         } else {
-            $kode_bahan = $this->input->post('kode_bahan',TRUE);
-            $kode_ujian = $this->input->post('kode_ujian',TRUE);
-            $s = date("d-m-Y H:i:s");
-            $kode_baru = trim(substr($this->input->post('posisi_jabatan',TRUE), 0, 4)).strtotime($s);
+            $kode_bahan = $this->input->post('kode_bahan', TRUE);
+            $kode_ujian = $this->input->post('kode_ujian', TRUE);
             $pendaftaran_mulai = strtotime(str_replace("/", '-', explode(" - ", $this->input->post('pendaftaran_tanggal',TRUE))[0]));
             $pendaftaran_akhir = strtotime(str_replace("/", '-', explode(" - ", $this->input->post('pendaftaran_tanggal',TRUE))[1]));
-            $arrBerkas = $this->input->post('nama_berkas',TRUE);
+            $arrIdBerkas = $this->input->post('id_berkas',TRUE);
+            $arrBerkas = $this->input->post('nama_berkas', TRUE);
             $arrBerkasType = $this->input->post('tipe_berkas',TRUE);
-            $arrUjian = $this->input->post('judul_ujian',TRUE);
+            $arrIdUjian = $this->input->post('id_ujian',TRUE);
+            $arrUjian = $this->input->post('judul_ujian', TRUE);
             $arrJadwalUjian = $this->input->post('jadwal_ujian',TRUE);
+            $arrNilaiUjian = $this->input->post('nilai_ujian', TRUE);
 
-            $cJadwalUjian=$this->Jadwal_ujian_model->get_data_by("kode_ujian", $kode_ujian);
+            $ujianId = "(";
             for($i=0;$i<count($arrUjian);$i++){
-                $kode_soal = trim(substr($arrUjian[$i], 0, 4)).strtotime("now");
-                foreach ($cJadwalUjian as $key => $value) {
-                    if ($value->judul==$arrUjian[$i]) {
-                        $kode_soal = $value->kode_soal;
-                    }
-                }
                 $temp = explode(" - ", $arrJadwalUjian[$i]);
                 $data_ujian = array(
-                    'kode_ujian'=>$kode_baru,
-                    'kode_soal'=>$kode_soal,
                     'judul'=>$arrUjian[$i],
                     'mulai'=>strtotime(str_replace("/", '-', $temp[0]).":00"),
-                    'akhir'=>strtotime(str_replace("/", '-', $temp[1]).":00")
+                    'akhir'=>strtotime(str_replace("/", '-', $temp[1]).":00"),
+                    'standar_nilai' => $arrNilaiUjian[$i],
                 );
-                $this->Jadwal_ujian_model->insert($data_ujian);
+                $this->Jadwal_ujian_model->update($arrIdUjian[$i], $data_ujian);
+                $ujianId .= "'" . $arrIdUjian[$i] . "', ";
             };
-            $this->db->query("DELETE FROM soal_ujian WHERE kode_soal NOT IN (SELECT kode_soal FROM jadwal_ujian WHERE kode_ujian='".$kode_ujian."')");
-            $this->Jadwal_ujian_model->delete_by("kode_ujian", $kode_ujian);
+            $ujianId = substr($ujianId, 0, (strlen($ujianId) - 2)) . ")";
+            $this->db->query("DELETE FROM jadwal_ujian WHERE id NOT IN " . $ujianId);
 
-            $bahan_pelamar = $this->db->query("SELECT * FROM pelamar_bahan WHERE id_berkas NOT IN (SELECT berkas_pekerjaan.id FROM berkas_pekerjaan WHERE berkas_pekerjaan.kode_bahan = '".$kode_bahan."')")->result();
-            foreach ($bahan_pelamar as $key => $value) {
-                if (isset($value->file_path)) {
-                    if ($value->file_path!=NULL) {
-                        if (file_exists($value->file_path)) {
-                            unlink($value->file_path);
-                        }
-                    }
-                }
-            }
-            $this->db->query("DELETE FROM pelamar_bahan WHERE id_berkas NOT IN (SELECT berkas_pekerjaan.id FROM berkas_pekerjaan WHERE berkas_pekerjaan.kode_bahan = '".$kode_bahan."')");
+            $berkasId = "(";
             for($i=0;$i<count($arrBerkas);$i++){
                 $data_berkas = array(
-                    'kode_bahan'=>$kode_baru,
                     'nama'=>$arrBerkas[$i],
                     'tipe'=>$arrBerkasType[$i]
                 );
-                $this->Berkas_pekerjaan_model->insert($data_berkas);
+                $this->Berkas_pekerjaan_model->update($arrIdBerkas[$i], $data_berkas);
+                $berkasId .= "'" . $arrIdBerkas[$i] . "', ";
             };
-            $this->Berkas_pekerjaan_model->delete_by("kode_bahan", $kode_bahan);
+            $berkasId = substr($berkasId, 0, (strlen($berkasId) - 2)) . ")";
+            $this->db->query("DELETE FROM berkas_pekerjaan WHERE id NOT IN " . $berkasId);
 
             $data = array(
                     'posisi_jabatan' => $this->input->post('posisi_jabatan',TRUE),
                     'pendaftaran_mulai' => $pendaftaran_mulai,
                     'pendaftaran_akhir' => $pendaftaran_akhir,
-                    'kode_bahan' => $kode_baru,
                     'kuota' => $this->input->post('kuota',TRUE),
-                    'kode_ujian' => $kode_baru,
                     );
 
             $this->Pekerjaan_model->update($this->input->post('id', TRUE), $data);

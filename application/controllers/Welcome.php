@@ -133,7 +133,7 @@ class Welcome extends CI_Controller {
             $this->load->model("Berkas_pekerjaan_model");
             $bk=array();
             $ujian = $this->Pekerjaan_model->get_by("id", $akun_data_pelamar->id_posisi);
-            if (count($ujian)>=1) {
+            if ($ujian) {
                 $bk = $this->Berkas_pekerjaan_model->get_data_by("kode_bahan", $ujian->kode_bahan);
                 $bp = $this->db->query("SELECT * FROM pelamar_bahan WHERE pelamar_bahan.nik = '".$akun_data_pelamar->nik."' AND pelamar_bahan.id_berkas IN (SELECT a.id FROM berkas_pekerjaan a WHERE a.kode_bahan = (SELECT pekerjaan.kode_bahan FROM pekerjaan WHERE pekerjaan.id = '".$akun_data_pelamar->id_posisi."' LIMIT 1 OFFSET 0))")->result();
                 if (count($bp)==count($bk)) {

@@ -1,5 +1,13 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+if (!function_exists('progressValue')) {
+	function progressValue($val, $max)
+	{
+		if ($max <= 0 || $max == NULL) return $val;
+		return ($val / $max) * 100;
+	}
+}
+
 /**
  * Unlink a file, but its safe with empty values
  *

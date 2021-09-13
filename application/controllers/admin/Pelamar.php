@@ -63,7 +63,11 @@ class Pelamar extends CI_Controller
                 }
                 $c++;
             }
-            $value->score = round($ctu / $c, 0);
+            if ($c >= 1) {
+                $value->score = round($ctu / $c, 0);
+            }else {
+                $value->score = 0;
+            }
         }
         $data = array(
             'pelamar_data' => $pelamar,

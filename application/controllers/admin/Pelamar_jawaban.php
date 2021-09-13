@@ -54,8 +54,20 @@ class Pelamar_jawaban extends CI_Controller
             $jadwal->jawaban_benar = $this->db->query("SELECT COUNT(a.id) AS total FROM pelamar_jawaban a LEFT OUTER JOIN soal_ujian b ON a.id_soal = b.id WHERE a.jawaban=b.jawaban AND a.nik = '".$jadwal->nik."' AND b.kode_soal = '".$jadwal->kode_soal."'")->row()->total;
             if ($jadwal->jawaban_benar >= 1 && $jadwal->total_soal >= 1) {
                 $jadwal->score = round(($jadwal->jawaban_benar / $jadwal->total_soal) * 100, 0);
-            }else{
+                if($jadwal->score >= $jadwal->standar_nilai){
+                    $jadwal->keterangan = "LULUS";
+                }else {
+                    $jadwal->keterangan = "TIDAK LULUS";
+                }
+            } elseif ($jadwal->total_soal >= 1) {
+                $jadwal->keterangan = "TIDAK LULUS";
                 $jadwal->score = 0;
+            } elseif ($jadwal->jawaban_benar >= 1) {
+                $jadwal->score = 0;
+                $jadwal->keterangan = NULL;
+            }else {
+                $jadwal->score = 0;
+                $jadwal->keterangan = NULL;
             }
         }
         $data = array(
@@ -125,7 +137,12 @@ class Pelamar_jawaban extends CI_Controller
                                                     );
         $soal = $this->Soal_ujian_model->get_data_by("kode_soal", $kodesoal);
         foreach ($soal as $key => $value) {
-            $value->terjawab=$this->Pelamar_jawaban_model->get_jawaban($nik, $value->id)->jawaban;
+            $j = $this->Pelamar_jawaban_model->get_jawaban($nik, $value->id);
+            if (isset($j->jawaban)) {
+                $value->terjawab = $j->jawaban;
+            }else{
+                $value->terjawab = NULL;
+            }
         };
         $data = array(
                 'data_soal' => $soal,

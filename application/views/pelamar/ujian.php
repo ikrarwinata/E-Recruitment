@@ -196,7 +196,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 if ($current >= $total) {
                   $enable = 'disabled="true"';
                 } ?>
-                <button type="submit" class="btn btn-md btn-primary form-control" <?php echo $enable ?> onclick="return unhook()">Selanjutnya&nbsp;<i class="fa fa-chevron-right"></i></button>
+                <?php if ($current >= $total) : ?>
+                  <button type="button" class="btn btn-md btn-success form-control" onclick="unhook();window.location = 'pelamar/Ujian/done'">Selesai&nbsp;<i class="fa fa-chevron-right"></i></button>
+                <?php else : ?>
+                  <button type="submit" class="btn btn-md btn-primary form-control" <?php echo $enable ?> onclick="return unhook()">Selanjutnya&nbsp;<i class="fa fa-chevron-right"></i></button>
+                <?php endif; ?>
               </div>
             </div>
           </form>
@@ -321,8 +325,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
         $(this).closest(".input-group").find("input").click();
       })
 
-      var warn = false;
+      var warn = false,
+        debug = false;
       $(window).blur(function() {
+        if (debug) return true;
         if (!warn) {
           warn = !warn;
           alert("Dilarang menggunakan alat bantu (Mesin pencari Google, Yahoo, Bing, Dll) ataupun bertanya pada orang lain.");
@@ -330,6 +336,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         ForceClose(false);
       });
       $(window).focus(function() {
+        if (debug) return true;
         if (!warn) {
           warn = !warn;
           alert("Dilarang menggunakan alat bantu (Mesin pencari Google, Yahoo, Bing, Dll) ataupun bertanya pada orang lain.");
